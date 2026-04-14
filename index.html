@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nasha Enterprise — Smart Quoting Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f5f6f8;--card:#fff;--border:#e5e7eb;--t1:#111827;--t2:#374151;--t3:#6b7280;--t4:#9ca3af;--accent:#185FA5;--green:#059669;--red:#dc2626;--amber:#d97706;--purple:#7c3aed;--sidebar:#111827;--font:'DM Sans','Noto Sans Bengali',system-ui,sans-serif}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);-webkit-font-smoothing:antialiased}
+input,select,textarea,button{font-family:var(--font)}
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* Sidebar */
+.sb{width:220px;background:var(--sidebar);display:flex;flex-direction:column;flex-shrink:0}
+.br{display:flex;align-items:center;gap:10px;padding:20px 16px 24px}
+.bm{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+.bn{color:#fff;font-weight:600;font-size:13px}.bsub{color:rgba(255,255,255,.35);font-size:11px;margin-top:1px}
+.nv{flex:1;padding:0 8px;display:flex;flex-direction:column;gap:2px}
+.ni{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.45);font-size:12px;font-weight:500;cursor:pointer;text-align:left;transition:.15s}
+.ni:hover{background:rgba(255,255,255,.06)}
+.ni.ac{background:rgba(255,255,255,.1);color:#fff}
+.ni svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.sf{display:flex;align-items:center;gap:9px;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.ua{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6);font-size:11px;font-weight:600}
+.un{color:rgba(255,255,255,.8);font-size:12px;font-weight:500}.ur{color:rgba(255,255,255,.3);font-size:11px}
+.lobtn{padding:3px 8px;border-radius:6px;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.45);font-size:11px;cursor:pointer;margin-left:auto}
+
+/* Main area */
+.mn{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);background:var(--card)}
+.cmdbar{flex:1;padding:8px 14px;border-radius:8px;background:#f9fafb;border:1px solid var(--border);font-size:12px;color:var(--t4);cursor:pointer;display:flex;align-items:center;gap:6px}
+.cmdbar:hover{border-color:#d1d5db}
+.cmdbar svg{width:14px;height:14px;stroke:var(--t4);fill:none;stroke-width:1.5}
+.kbd{font-size:11px;padding:1px 5px;border-radius:4px;background:var(--bg);border:1px solid var(--border);color:var(--t4);margin-left:auto;font-family:monospace}
+.tgl{display:flex;gap:2px}
+.tgl button{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--card);font-size:11px;font-weight:500;color:var(--t3);cursor:pointer}
+.tgl button.on{background:#e0f0ff;color:var(--accent);border-color:#bdd9f5}
+.bell{position:relative;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:flex}
+.bell svg{width:16px;height:16px;stroke:var(--t3);fill:none;stroke-width:1.5}
+.bdot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--red)}
+.chatbtn{padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:11px;font-weight:600;color:var(--t3);cursor:pointer;display:flex;align-items:center;gap:5px}
+.chatbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
+
+/* Content */
+.ct{flex:1;padding:24px 28px;overflow-y:auto}
+.pt{font-size:20px;font-weight:700;letter-spacing:-.02em}.ps{font-size:12px;color:var(--t4);margin-top:3px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 22px}
+.sc{background:var(--card);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;border:1px solid var(--border)}
+.sa{position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0}
+.sl{font-size:11px;color:var(--t4);margin-top:3px;font-weight:500}.sv{font-size:26px;font-weight:700;margin-top:4px;letter-spacing:-.03em}
+.g2{display:grid;grid-template-columns:3fr 2fr;gap:14px}
+.tc{background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.tt{font-size:12px;font-weight:600;padding:14px 18px 8px;color:var(--t2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 18px;font-size:11px;font-weight:500;color:var(--t4);border-bottom:1px solid #f3f4f6;text-transform:uppercase;letter-spacing:.03em}
+td{padding:9px 18px;color:var(--t2);border-bottom:1px solid #f9fafb}
+tr:last-child td{border-bottom:none}
+tr:hover{background:#fafbfc}
+.jn{font-weight:600;color:var(--t1);font-variant-numeric:tabular-nums}
+.sp{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600}
+
+/* Activity feed */
+.af{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:14px 18px}
+.aft{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:10px}
+.afi{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f3f4f6}
+.afi:last-child{border-bottom:none}
+.afdot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.afd{font-size:12px;color:var(--t2);line-height:1.4;flex:1}
+.aft2{font-size:11px;color:var(--t4);white-space:nowrap}
+
+/* Quote input */
+.qi{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:22px 24px;margin-top:16px}
+.ql{display:block;font-size:13px;font-weight:600;color:var(--t2);margin-bottom:8px}
+.qta{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;line-height:1.6;resize:vertical;background:#fafbfc;color:var(--t1);outline:none;transition:.15s}
+.qta:focus{border-color:var(--accent)}
+.qr{display:flex;align-items:flex-end;gap:12px;margin-top:14px}
+.qs{flex:1;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);font-size:13px;background:#fafbfc;color:var(--t1)}
+.qb{display:flex;align-items:center;gap:6px;padding:11px 22px;border-radius:10px;border:none;background:var(--sidebar);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s}
+.qb:hover{opacity:.9}
+.qb:disabled{opacity:.4;cursor:not-allowed}
+
+/* Quote card */
+.qc{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;margin-top:16px}
+.qch{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 24px 14px;border-bottom:1px solid #f3f4f6}
+.qrl{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--t4);text-transform:uppercase}.qrv{font-size:15px;font-weight:700;margin-top:2px}
+.qro{display:flex;align-items:center;justify-content:space-between;padding:18px 24px 6px;gap:12px}
+.qpc{font-size:18px;font-weight:700;letter-spacing:.02em}.qpn{font-size:12px;color:var(--t4);margin-top:1px}
+.qaw{flex:1;display:flex;align-items:center}.qal{flex:1;height:1.5px;background:#e5e7eb}
+.qtp{padding:3px 12px;border-radius:8px;background:#f3f4f6;font-size:11px;font-weight:600;color:var(--t3);white-space:nowrap}
+.qci{text-align:center;padding:6px 24px 16px;font-size:13px;color:var(--t4);border-bottom:1px solid #f3f4f6}
+.qbd{padding:16px 24px}
+.qst{font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--t4);text-transform:uppercase;margin-bottom:10px}
+.qli{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.qll{color:var(--t3)}.qlv{font-weight:600;font-variant-numeric:tabular-nums}
+.qsu{display:flex;justify-content:space-between;padding:10px 0 4px;margin-top:6px;border-top:1px dashed #e5e7eb}
+.qsul{font-size:13px;font-weight:600;color:var(--t2)}.qsuv{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.qgt{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:var(--sidebar)}
+.qgtl{font-size:12px;font-weight:500;color:rgba(255,255,255,.55)}.qgts{font-size:11px;color:rgba(255,255,255,.3);margin-top:1px}
+.qgtv{font-size:26px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.qw{padding:10px 24px;background:#fffbeb}.qwt{font-size:12px;color:#92400e}
+.qac{display:flex;gap:10px;padding:16px 24px 20px;justify-content:flex-end}
+.rbtn{padding:10px 22px;border-radius:10px;border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;color:var(--t3);cursor:pointer}
+.abtn{padding:10px 22px;border-radius:10px;border:none;background:var(--green);color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.abtn:hover{opacity:.9}
+
+/* Error */
+.eb{display:flex;align-items:center;gap:10px;padding:14px 20px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;font-size:13px;color:#991b1b;margin-top:14px}
+.ertb{margin-left:auto;padding:6px 16px;border-radius:8px;border:1px solid #fecaca;background:#fff;font-size:12px;font-weight:600;color:#991b1b;cursor:pointer}
+
+/* Audit */
+.alr{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid #f3f4f6;font-size:12px}
+.alr:last-child{border-bottom:none}
+.alt{color:var(--t4);width:55px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.alu{font-weight:600;color:var(--t1);width:110px;flex-shrink:0}.ala{width:85px;flex-shrink:0}.ald{color:var(--t2);flex:1}
+
+/* Users */
+.uc{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid #f3f4f6}
+.uc:last-child{border-bottom:none}
+.ucav{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.uci{flex:1}.ucn{font-size:13px;font-weight:600;color:var(--t1)}.uce{font-size:11px;color:var(--t4)}
+.ucr{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:600}
+.ucs{width:8px;height:8px;border-radius:50%}
+
+/* Chatbot drawer */
+.cdr{width:300px;background:var(--card);border-left:1px solid var(--border);display:none;flex-direction:column;flex-shrink:0}
+.cdr.open{display:flex}
+.cdh{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.cdht{font-size:13px;font-weight:600}.cdx{border:none;background:none;cursor:pointer;color:var(--t4);font-size:18px}
+.cdmsgs{flex:1;padding:14px 18px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+.cdm{max-width:88%;padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.5}
+.cdm.bot{background:#f3f4f6;color:var(--t1);align-self:flex-start;border-bottom-left-radius:4px}
+.cdm.usr{background:#e0f0ff;color:var(--accent);align-self:flex-end;border-bottom-right-radius:4px}
+.cdsug{display:flex;flex-wrap:wrap;gap:5px;padding:0 18px 10px}
+.cdsug button{padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:11px;color:var(--t3);cursor:pointer;transition:.15s}
+.cdsug button:hover{background:#f3f4f6}
+.cdin{display:flex;gap:6px;padding:12px 18px;border-top:1px solid var(--border)}
+.cdin input{flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);font-size:12px;outline:none}
+.cdin input:focus{border-color:var(--accent)}
+.cdin button{padding:9px 14px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+
+/* Login */
+.login{height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.lcard{width:380px;background:var(--card);border-radius:14px;border:1px solid var(--border);padding:36px 32px}
+.lmark{width:44px;height:44px;border-radius:11px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;margin:0 auto 18px}
+.lh{text-align:center;font-size:18px;font-weight:700}.lsub{text-align:center;font-size:13px;color:var(--t4);margin:4px 0 22px}
+.lf label{display:block;font-size:12px;font-weight:600;color:var(--t3);margin-bottom:5px}
+.lf input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;outline:none;margin-bottom:14px}
+.lf input:focus{border-color:var(--accent)}
+.lerr{font-size:12px;color:var(--red);text-align:center;min-height:18px;margin-bottom:6px}
+.lbtn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer}
+.lbtn:hover{opacity:.92}
+.ltgl{display:flex;justify-content:center;gap:8px;margin-top:14px}
+
+.demo-badge{position:absolute;top:12px;right:12px;padding:4px 10px;border-radius:6px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:600;z-index:10}
+
+.hide{display:none!important}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fadein{animation:fadein .3s ease}
+</style>
+</head>
+<body>
+
+<div id="login-view" class="login">
+ <div class="lcard" style="position:relative">
+  <div class="demo-badge">Demo mode</div>
+  <div class="lmark">N</div>
+  <div class="lh" id="lh">Sign in</div>
+  <div class="lsub" id="lsub">Enter your credentials to access the system</div>
+  <div class="lf">
+   <label id="l-user">Username</label>
+   <input id="inp-user" value="demo" placeholder="Username">
+   <label id="l-pass">Password</label>
+   <input id="inp-pass" type="password" value="demo" placeholder="Password">
+  </div>
+  <div class="lerr" id="lerr"></div>
+  <div style="display:flex;gap:8px;align-items:center">
+   <div class="tgl" id="login-tgl"><button class="on" onclick="setLang('en')">EN</button><button onclick="setLang('bn')">বাংলা</button></div>
+   <button class="lbtn" style="flex:1" onclick="doLogin()" id="lbtn">Sign in</button>
+  </div>
+  <div class="ltgl"><span style="font-size:11px;color:var(--t4)">Demo: username <b>demo</b>, password <b>demo</b></span></div>
+ </div>
+</div>
+
+<div id="app-view" class="app hide">
+<aside class="sb">
+ <div class="br"><div class="bm">N</div><div><div class="bn" id="sb-n">Nasha Enterprise</div><div class="bsub" id="sb-t">Clearing & Forwarding</div></div></div>
+ <nav class="nv" id="navlist">
+  <button class="ni ac" onclick="go('dash')"><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span id="n1">Dashboard</span></button>
+  <button class="ni" onclick="go('quote')"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg><span id="n2">Smart quote</span></button>
+  <button class="ni" onclick="go('audit')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span id="n3">Audit log</span></button>
+  <button class="ni" onclick="go('users')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><span id="n4">Users</span></button>
+ </nav>
+ <div class="sf">
+  <div class="ua" id="sf-av">DU</div>
+  <div><div class="un" id="sf-name">Demo User</div><div class="ur" id="sf-role">Manager</div></div>
+  <button class="lobtn" onclick="doLogout()" id="sf-lo">Logout</button>
+ </div>
+</aside>
+
+<div class="mn">
+ <div class="topbar">
+  <div class="cmdbar"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><span id="tb-search">Search jobs, quotes, actions...</span><span class="kbd">Ctrl+K</span></div>
+  <div class="tgl" id="tgl-lang"><button class="on" onclick="setLang('en')">EN</button><button onclick="setLang('bn')">বাংলা</button></div>
+  <div class="tgl" id="tgl-ccy"><button onclick="setCcy('USD')">$</button><button class="on" onclick="setCcy('BDT')">৳</button></div>
+  <div class="bell" title="2 pending approvals"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg><div class="bdot"></div></div>
+  <button class="chatbtn" onclick="toggleChat()"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span id="tb-chat">Assistant</span></button>
+ </div>
+
+ <div style="display:flex;flex:1;overflow:hidden">
+  <div class="ct" id="content">
+
+   <!-- DASHBOARD -->
+   <div id="v-dash" class="fadein">
+    <p class="pt" id="d-title">Dashboard</p><p class="ps">14 April 2026</p>
+    <div class="sg">
+     <div class="sc"><div class="sa" style="background:var(--accent)"></div><div class="sl" id="s1">Export jobs today</div><div class="sv">7</div></div>
+     <div class="sc"><div class="sa" style="background:var(--purple)"></div><div class="sl" id="s2">Import this week</div><div class="sv">6</div></div>
+     <div class="sc"><div class="sa" style="background:var(--amber)"></div><div class="sl" id="s3">Pending quotes</div><div class="sv">2</div></div>
+     <div class="sc"><div class="sa" style="background:var(--green)"></div><div class="sl" id="s4">Cleared this month</div><div class="sv">18</div></div>
+    </div>
+    <div class="g2">
+     <div class="tc"><div class="tt" id="t-exp">Recent export jobs</div><table><thead><tr><th>#</th><th>Date</th><th>Party</th><th style="text-align:right">Status</th></tr></thead><tbody id="tb-exp"></tbody></table></div>
+     <div class="af"><div class="aft" id="t-act">Activity feed</div><div id="af-items"></div></div>
+    </div>
+   </div>
+
+   <!-- QUOTE -->
+   <div id="v-quote" class="hide fadein">
+    <p class="pt" id="q-title">Smart quote</p><p class="ps" id="q-sub">Paste a client message — AI extracts details and finds the best rate</p>
+    <div class="qi">
+     <label class="ql" id="q-lbl">Customer request</label>
+     <textarea class="qta" id="qtxt" rows="3" placeholder='e.g. "Need 2x 40ft containers from Shanghai to Chittagong, garment cargo"'></textarea>
+     <div class="qr">
+      <div style="flex:1"><label style="font-size:11px;color:var(--t4);display:block;margin-bottom:4px" id="q-clbl">Client</label><select class="qs" id="qcli"><option value="ZABER">Zaber & Zubair Fabrics (8%)</option><option value="ARLA">Arla Food Bangladesh (10%)</option><option value="AKIJ">Akij Particle Board (12%)</option><option value="CITYLUBE">City Lube Oil (10%)</option><option value="DEFAULT">Walk-in / Default (15%)</option></select></div>
+      <button class="qb" onclick="genQuote()" id="q-btn">Generate quote</button>
+     </div>
+    </div>
+    <div id="q-err" class="hide"></div>
+    <div id="q-loading" class="hide" style="text-align:center;padding:30px;color:var(--t4);font-size:13px">Analysing request...</div>
+    <div id="q-result" class="hide"></div>
+   </div>
+
+   <!-- AUDIT -->
+   <div id="v-audit" class="hide fadein">
+    <p class="pt" id="a-title">Audit log</p><p class="ps" id="a-sub">Transparent record of every action in the system</p>
+    <div class="tc" style="margin-top:16px" id="audit-table"></div>
+   </div>
+
+   <!-- USERS -->
+   <div id="v-users" class="hide fadein">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div><p class="pt" id="u-title">User management</p><p class="ps" id="u-sub">Manage employee accounts and roles</p></div><button class="qb" style="padding:9px 18px;font-size:12px" id="u-add">+ Add user</button></div>
+    <div class="tc" style="margin-top:16px" id="user-list"></div>
+   </div>
+
+  </div>
+
+  <!-- CHATBOT -->
+  <div class="cdr" id="chatdrawer">
+   <div class="cdh"><span class="cdht" id="cd-t">Data assistant</span><button class="cdx" onclick="toggleChat()">&times;</button></div>
+   <div class="cdmsgs" id="cdmsgs"><div class="cdm bot" id="cd-w">Hello! Ask me anything about jobs, rates, quotes in English or Bangla.</div></div>
+   <div class="cdsug" id="cdsug"><button onclick="chatQ('Show Arla imports this week')">Arla imports this week</button><button onclick="chatQ('Cheapest rate to Chittagong 40ft')">Cheapest rate to CGP</button><button onclick="chatQ('Who approved the last quote?')">Last approval</button></div>
+   <div class="cdin"><input id="cdinp" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')chatSend()"><button onclick="chatSend()">Send</button></div>
+  </div>
+ </div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════
+var LANG='en',CCY='BDT',XR=110.5;
+
+// ══════════════════════════════════════════════════════════════════
+// i18n
+// ══════════════════════════════════════════════════════════════════
+var T={
+en:{dash:'Dashboard',quote:'Smart quote',audit:'Audit log',users:'User management',qsub:'Paste a client message — AI extracts details and finds the best rate',asub:'Transparent record of every action in the system',usub:'Manage employee accounts and roles',s1:'Export jobs today',s2:'Import this week',s3:'Pending quotes',s4:'Cleared this month',exp:'Recent export jobs',act:'Activity feed',qlbl:'Customer request',clbl:'Client',btn:'Generate quote',signin:'Sign in',sinsub:'Enter your credentials to access the system',usr:'Username',pass:'Password',assist:'Data assistant',search:'Search jobs, quotes, actions...',add:'+ Add user',lo:'Logout',cw:'Hello! Ask me anything about jobs, rates, quotes in English or Bangla.',name:'Nasha Enterprise',tag:'Clearing & Forwarding',mgr:'Manager'},
+bn:{dash:'ড্যাশবোর্ড',quote:'স্মার্ট কোটেশন',audit:'অডিট লগ',users:'ইউজার ম্যানেজমেন্ট',qsub:'ক্লায়েন্টের মেসেজ পেস্ট করুন — AI সেরা রেট খুঁজে দেবে',asub:'প্রতিটি কাজের স্বচ্ছ রেকর্ড',usub:'কর্মচারী অ্যাকাউন্ট পরিচালনা',s1:'আজকের এক্সপোর্ট',s2:'সাপ্তাহিক ইমপোর্ট',s3:'পেন্ডিং কোটেশন',s4:'মাসিক ক্লিয়ার',exp:'সাম্প্রতিক এক্সপোর্ট',act:'কার্যকলাপ',qlbl:'ক্রেতার অনুরোধ',clbl:'ক্লায়েন্ট',btn:'কোটেশন তৈরি করুন',signin:'সাইন ইন',sinsub:'সিস্টেমে প্রবেশ করতে তথ্য দিন',usr:'ইউজারনেম',pass:'পাসওয়ার্ড',assist:'ডাটা সহকারী',search:'জব, কোটেশন খুঁজুন...',add:'+ নতুন ইউজার',lo:'লগআউট',cw:'আসসালামু আলাইকুম! জব, রেট, কোটেশন সম্পর্কে জিজ্ঞাসা করুন।',name:'নাশা এন্টারপ্রাইজ',tag:'ক্লিয়ারিং এন্ড ফরওয়ার্ডিং',mgr:'ম্যানেজার'}
+};
+
+function tx(k){return T[LANG][k]||k}
+
+function applyLang(){var t=T[LANG];
+var m={lh:'signin','lsub':'sinsub','l-user':'usr','l-pass':'pass',lbtn:'signin','d-title':'dash','q-title':'quote','q-sub':'qsub','a-title':'audit','a-sub':'asub','u-title':'users','u-sub':'usub',s1:'s1',s2:'s2',s3:'s3',s4:'s4','t-exp':'exp','t-act':'act','q-lbl':'qlbl','q-clbl':'clbl','q-btn':'btn','cd-t':'assist','cd-w':'cw','tb-search':'search','tb-chat':'assist','u-add':'add','sf-lo':'lo','sf-role':'mgr','sb-n':'name','sb-t':'tag'};
+for(var id in m){var el=document.getElementById(id);if(el)el.textContent=t[m[id]];}
+document.getElementById('n1').textContent=t.dash;document.getElementById('n2').textContent=t.quote;
+document.getElementById('n3').textContent=t.audit;document.getElementById('n4').textContent=t.users;
+applyCcy();
+}
+
+function setLang(l){LANG=l;
+document.querySelectorAll('#tgl-lang button, #login-tgl button').forEach(function(b,i){b.className=((i===0&&l==='en')||(i===1&&l==='bn'))?'on':'';});
+applyLang();}
+
+function setCcy(c){CCY=c;
+document.querySelectorAll('#tgl-ccy button').forEach(function(b,i){b.className=((i===0&&c==='USD')||(i===1&&c==='BDT'))?'on':'';});
+applyCcy();}
+
+function fmt(usd){
+if(CCY==='BDT')return'৳'+Math.round(usd*XR).toLocaleString('en');
+return'$'+usd.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function applyCcy(){var el=document.getElementById('q-gt-val');if(el)el.textContent=fmt(4720.60);}
+
+// ══════════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════════
+var EX=[{n:430,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'DRAFT'},{n:429,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'QUOTED'},{n:428,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'APPROVED'},{n:427,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'APPROVED'},{n:426,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'CLEARED'},{n:425,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'CLEARED'},{n:424,d:'14 Apr',p:'Zaber & Zubair Fabrics',s:'CLEARED'}];
+
+var SC={DRAFT:{b:'#f0f0f0',c:'#666'},QUOTED:{b:'#e0f0ff',c:'#185FA5'},APPROVED:{b:'#e6f7ee',c:'#059669'},CLEARED:{b:'#eeedfe',c:'#7c3aed'}};
+
+var ACTS=[{c:'var(--green)',t:'Jakir approved quote Q-7A3F',a:'2m'},{c:'var(--accent)',t:'Rahim created export #430',a:'14m'},{c:'var(--amber)',t:'MSC rate Shanghai-CGP dropped $40',a:'1h'},{c:'var(--purple)',t:'Karim cleared import #43',a:'2h'},{c:'var(--accent)',t:'Arla import #44 docs uploaded',a:'3h'}];
+
+var ALOG=[
+{t:'09:14',u:'Jakir Rana',a:'approve',ac:'#e6f7ee',at:'#059669',d:'Approved quote Q-20260414-7A3F2B'},
+{t:'09:12',u:'Jakir Rana',a:'generate',ac:'#e0f0ff',at:'#185FA5',d:'Generated quote for Zaber export #430'},
+{t:'09:10',u:'Rahim Khan',a:'create',ac:'#eeedfe',at:'#7c3aed',d:'Created export job #430'},
+{t:'08:55',u:'Karim Uddin',a:'clear',ac:'#e6f7ee',at:'#059669',d:'Cleared import job #43 (Arla Food)'},
+{t:'08:50',u:'Rahim Khan',a:'upload',ac:'#fffbeb',at:'#d97706',d:'Uploaded B/L for import #44'},
+{t:'08:42',u:'Jakir Rana',a:'login',ac:'#e0f0ff',at:'#185FA5',d:'Logged in from 10.0.1.15 (Jakir-PC)'},
+{t:'08:40',u:'Rahim Khan',a:'login',ac:'#e0f0ff',at:'#185FA5',d:'Logged in from 10.0.1.22'},
+{t:'08:35',u:'Karim Uddin',a:'login',ac:'#e0f0ff',at:'#185FA5',d:'Logged in from 10.0.1.18'}];
+
+var USERS=[
+{av:'JR',bg:'#e0f0ff',fg:'#185FA5',n:'Jakir Hossain Rana',e:'jakir.rana@nasha.bd',r:'Manager',rb:'#e6f7ee',rf:'#059669',on:1},
+{av:'RK',bg:'#eeedfe',fg:'#7c3aed',n:'Rahim Khan',e:'rahim.khan@nasha.bd',r:'Agent',rb:'#e0f0ff',rf:'#185FA5',on:1},
+{av:'KU',bg:'#fffbeb',fg:'#d97706',n:'Karim Uddin',e:'karim.uddin@nasha.bd',r:'Agent',rb:'#e0f0ff',rf:'#185FA5',on:1},
+{av:'SA',bg:'#f3f4f6',fg:'#9ca3af',n:'Salma Akter',e:'salma.akter@nasha.bd',r:'Viewer',rb:'#f3f4f6',rf:'#9ca3af',on:0}];
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════
+function renderJobs(){var h='';EX.forEach(function(j){var c=SC[j.s];h+='<tr><td class="jn">'+j.n+'</td><td>'+j.d+'</td><td>'+j.p+'</td><td style="text-align:right"><span class="sp" style="background:'+c.b+';color:'+c.c+'">'+j.s+'</span></td></tr>';});document.getElementById('tb-exp').innerHTML=h;}
+
+function renderFeed(){var h='';ACTS.forEach(function(a){h+='<div class="afi"><div class="afdot" style="background:'+a.c+'"></div><div class="afd">'+a.t+'</div><div class="aft2">'+a.a+'</div></div>';});document.getElementById('af-items').innerHTML=h;}
+
+function renderAudit(){var h='';ALOG.forEach(function(a){h+='<div class="alr"><span class="alt">'+a.t+'</span><span class="alu">'+a.u+'</span><span class="ala"><span class="sp" style="background:'+a.ac+';color:'+a.at+'">'+a.a+'</span></span><span class="ald">'+a.d+'</span></div>';});document.getElementById('audit-table').innerHTML=h;}
+
+function renderUsers(){var h='';USERS.forEach(function(u){h+='<div class="uc"><div class="ucav" style="background:'+u.bg+';color:'+u.fg+'">'+u.av+'</div><div class="uci"><div class="ucn">'+u.n+'</div><div class="uce">'+u.e+'</div></div><span class="ucr" style="background:'+u.rb+';color:'+u.rf+'">'+u.r+'</span><div class="ucs" style="background:'+(u.on?'var(--green)':'#d1d5db')+'"></div></div>';});document.getElementById('user-list').innerHTML=h;}
+
+// ══════════════════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════════════════
+var views=['dash','quote','audit','users'];
+function go(v){views.forEach(function(x){document.getElementById('v-'+x).classList.toggle('hide',x!==v);});var btns=document.getElementById('navlist').children;for(var i=0;i<btns.length;i++){btns[i].classList.toggle('ac',views[i]===v);}}
+
+// ══════════════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════════════
+function doLogin(){
+var u=document.getElementById('inp-user').value,p=document.getElementById('inp-pass').value;
+if(u==='demo'&&p==='demo'||u==='jakir.rana'&&p==='nasha2026'||u==='admin'&&p==='admin123'){
+ document.getElementById('login-view').classList.add('hide');
+ document.getElementById('app-view').classList.remove('hide');
+ if(u==='jakir.rana'){document.getElementById('sf-av').textContent='JR';document.getElementById('sf-name').textContent='Jakir Hossain Rana';}
+ renderJobs();renderFeed();renderAudit();renderUsers();applyLang();
+}else{document.getElementById('lerr').textContent=LANG==='bn'?'ভুল ইউজারনেম বা পাসওয়ার্ড':'Invalid username or password';}}
+
+function doLogout(){document.getElementById('app-view').classList.add('hide');document.getElementById('login-view').classList.remove('hide');document.getElementById('lerr').textContent='';}
+
+// ══════════════════════════════════════════════════════════════════
+// QUOTE
+// ══════════════════════════════════════════════════════════════════
+var PORTS={shanghai:{c:'CNSHA',n:'Shanghai'},chittagong:{c:'BDCGP',n:'Chittagong'},chattogram:{c:'BDCGP',n:'Chittagong'},ningbo:{c:'CNNGB',n:'Ningbo'},singapore:{c:'SGSIN',n:'Singapore'},rotterdam:{c:'NLRTM',n:'Rotterdam'},hamburg:{c:'DEHAM',n:'Hamburg'},kolkata:{c:'INKOL',n:'Kolkata'},busan:{c:'KRPUS',n:'Busan'}};
+var RATES={'CNSHA-BDCGP-40FT':{c:'MSC',r:1780,d:16},'CNSHA-BDCGP-20FT':{c:'MSC',r:980,d:16},'CNSHA-BDCGP-40HC':{c:'MSC',r:1840,d:16},'BDCGP-NLRTM-40FT':{c:'MSC',r:2380,d:30},'BDCGP-DEHAM-40FT':{c:'MSC',r:2420,d:32}};
+var MK={ZABER:{p:8,f:25},ARLA:{p:10,f:30},AKIJ:{p:12,f:35},CITYLUBE:{p:10,f:30},DEFAULT:{p:15,f:50}};
+var TRK={'CNSHA-40FT':250,'CNSHA-20FT':180,'BDCGP-40FT':162.90,'BDCGP-20FT':108.60,'NLRTM-40FT':380.45,'DEHAM-40FT':413.06};
+
+function genQuote(){
+var txt=document.getElementById('qtxt').value;if(txt.length<10)return;
+var low=txt.toLowerCase();
+document.getElementById('q-err').classList.add('hide');document.getElementById('q-result').classList.add('hide');
+document.getElementById('q-loading').classList.remove('hide');
+
+setTimeout(function(){
+ document.getElementById('q-loading').classList.add('hide');
+ // Parse
+ var qty=1,sz='40FT',orig='',dest='';
+ var qm=low.match(/(\d+)\s*[x×]/);if(qm)qty=parseInt(qm[1]);
+ if(low.includes('20'))sz='20FT';else if(low.includes('40hc')||low.includes('high cube'))sz='40HC';
+ var fm=low.match(/from\s+(\w+)/);var tm=low.match(/to\s+(\w+)/);
+ if(fm)orig=fm[1];if(tm)dest=tm[1];
+ if(!orig||!dest){for(var p in PORTS){if(low.includes(p)){if(!orig)orig=p;else if(!dest)dest=p;}}}
+ var op=PORTS[orig],dp=PORTS[dest];
+ if(!op){document.getElementById('q-err').innerHTML='<div class="eb">Origin port "'+orig+'" not recognised — possible AI hallucination. Verify the port name.<button class="ertb" onclick="this.parentElement.parentElement.classList.add(\'hide\')">Dismiss</button></div>';document.getElementById('q-err').classList.remove('hide');return;}
+ if(!dp){document.getElementById('q-err').innerHTML='<div class="eb">Destination port "'+(dest||'(empty)')+'" not recognised — possible AI hallucination.<button class="ertb" onclick="this.parentElement.parentElement.classList.add(\'hide\')">Dismiss</button></div>';document.getElementById('q-err').classList.remove('hide');return;}
+ var rk=op.c+'-'+dp.c+'-'+sz,rate=RATES[rk];
+ if(!rate){document.getElementById('q-err').innerHTML='<div class="eb">No active rates for '+op.n+' &rarr; '+dp.n+' ['+sz+']. Contact the rates desk.<button class="ertb" onclick="this.parentElement.parentElement.classList.add(\'hide\')">Dismiss</button></div>';document.getElementById('q-err').classList.remove('hide');return;}
+ var cl=document.getElementById('qcli').value,mk=MK[cl]||MK.DEFAULT;
+ var ot=TRK[op.c+'-'+sz]||0,dt=TRK[dp.c+'-'+sz]||0;
+ var ma=Math.round(rate.r*mk.p)/100,tpc=Math.round((rate.r+ot+dt+ma+mk.f)*100)/100,gt=Math.round(tpc*qty*100)/100;
+ var ref='Q-20260414-'+Math.random().toString(36).slice(2,8).toUpperCase();
+ var warn=dp.c==='BDCGP'&&dt>0?'<div class="qw"><div class="qwt">Destination trucking converted from 18,000 BDT at 0.00905 rate</div></div>':'';
+ document.getElementById('q-result').innerHTML='<div class="qc"><div class="qch"><div><div class="qrl">QUOTE</div><div class="qrv">'+ref+'</div></div><div id="q-badge"></div></div><div class="qro"><div><div class="qpc">'+op.c+'</div><div class="qpn">'+op.n+'</div></div><div class="qaw"><div class="qal"></div><div class="qtp">'+rate.c+' &middot; '+rate.d+'d</div><div class="qal"></div></div><div style="text-align:right"><div class="qpc">'+dp.c+'</div><div class="qpn">'+dp.n+'</div></div></div><div class="qci">'+qty+' &times; '+sz+'</div><div class="qbd"><div class="qst">Cost per container</div><div class="qli"><span class="qll">Ocean freight</span><span class="qlv">'+fmt(rate.r)+'</span></div><div class="qli"><span class="qll">Origin trucking</span><span class="qlv">'+fmt(ot)+'</span></div><div class="qli"><span class="qll">Destination trucking</span><span class="qlv">'+fmt(dt)+'</span></div><div class="qli"><span class="qll">Margin ('+mk.p+'%)</span><span class="qlv">'+fmt(ma)+'</span></div><div class="qli"><span class="qll">Handling fee</span><span class="qlv">'+fmt(mk.f)+'</span></div><div class="qsu"><span class="qsul">Subtotal / container</span><span class="qsuv">'+fmt(tpc)+'</span></div></div><div class="qgt"><div><div class="qgtl">Grand total</div><div class="qgts">'+qty+' &times; '+fmt(tpc)+'</div></div><div class="qgtv" id="q-gt-val">'+fmt(gt)+'</div></div>'+warn+'<div class="qac" id="q-act"><button class="rbtn" onclick="qDec(\'rejected\')">Reject</button><button class="abtn" onclick="qDec(\'approved\')">Approve quote</button></div></div>';
+ document.getElementById('q-result').classList.remove('hide');
+},1500);}
+
+function qDec(d){var el=document.getElementById('q-act');var c=d==='approved'?'var(--green)':'var(--red)';var l=d==='approved'?(LANG==='bn'?'অনুমোদিত':'Approved'):(LANG==='bn'?'প্রত্যাখ্যাত':'Rejected');el.innerHTML='<span class="sp" style="background:'+c+';color:#fff;padding:8px 18px;font-size:13px">'+l+'</span>';document.getElementById('q-badge').innerHTML='<span class="sp" style="background:'+c+';color:#fff">'+l+'</span>';}
+
+// ══════════════════════════════════════════════════════════════════
+// CHATBOT
+// ══════════════════════════════════════════════════════════════════
+function toggleChat(){document.getElementById('chatdrawer').classList.toggle('open');}
+
+var CBOT={
+'arla':{en:'Found 6 Arla Food import jobs this week: #41-#45 (Approved/Cleared) and #46 (Quoted).',bn:'এই সপ্তাহে আরলার ৬টি ইমপোর্ট জব: #৪১-#৪৫ (অনুমোদিত/ক্লিয়ার) এবং #৪৬ (কোটেড)।'},
+'rate':{en:'Best rate: MSC at $1,780 per 40FT, Shanghai → Chittagong, 16-day transit.',bn:'সেরা রেট: MSC $১,৭৮০/৪০FT সাংহাই→চট্টগ্রাম, ১৬ দিন।'},
+'zaber':{en:'Zaber & Zubair has 7 export jobs today (#424-#430). 3 Cleared, 2 Approved, 1 Quoted, 1 Draft.',bn:'জাবের এন্ড জুবায়েরের আজ ৭টি এক্সপোর্ট জব (#৪২৪-#৪৩০)।'},
+'approv':{en:'Jakir Hossain Rana approved quote Q-20260414-7A3F2B at 09:14 UTC today.',bn:'জাকির হোসেন রানা আজ ০৯:১৪-তে কোটেশন Q-20260414-7A3F2B অনুমোদন করেছেন।'},
+'_default':{en:'You can ask about jobs, rates, quotes, or audit logs. Try: "Show Arla imports this week"',bn:'জব, রেট, কোটেশন সম্পর্কে জিজ্ঞাসা করুন। যেমন: "আরলার এই সপ্তাহের ইমপোর্ট দেখাও"'}
+};
+
+function chatQ(msg){
+var el=document.getElementById('cdmsgs');
+el.innerHTML+='<div class="cdm usr">'+msg+'</div>';
+document.getElementById('cdsug').style.display='none';
+var low=msg.toLowerCase(),ans=CBOT._default[LANG];
+for(var k in CBOT){if(k!=='_default'&&low.includes(k)){ans=CBOT[k][LANG];break;}}
+setTimeout(function(){el.innerHTML+='<div class="cdm bot">'+ans+'</div>';el.scrollTop=el.scrollHeight;},700);}
+
+function chatSend(){var inp=document.getElementById('cdinp');if(!inp.value.trim())return;chatQ(inp.value.trim());inp.value='';}
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+applyLang();
+</script>
+</body>
+</html>
