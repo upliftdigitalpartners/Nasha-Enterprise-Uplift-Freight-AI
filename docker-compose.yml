@@ -1,0 +1,52 @@
+# docker-compose.yml
+# Deploy the full Smart Quoting Engine stack on Nasha's in-house server.
+# Usage:
+#   1. Copy .env.example to .env and fill in your secrets
+#   2. docker compose up -d
+#   3. Access at http://<SERVER_IP>:5000
+
+services:
+  # ── SQL Server ─────────────────────────────────────────────────
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: nasha-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SQL_PASSWORD}"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SQL_PASSWORD}" -C -Q "SELECT 1" -b
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API + Web Frontend ─────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nasha-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__QuotingDb: "Server=sqlserver;Database=SmartQuoting;User Id=sa;Password=${SQL_PASSWORD};TrustServerCertificate=True"
+      Jwt__Secret: "${JWT_SECRET}"
+      OpenAi__ApiKey: "${OPENAI_API_KEY}"
+      OpenAi__Model: "gpt-4o"
+    ports:
+      - "5000:5000"
+    volumes:
+      - documents:/data/documents
+    restart: unless-stopped
+
+volumes:
+  sqldata:
+    driver: local
+  documents:
+    driver: local

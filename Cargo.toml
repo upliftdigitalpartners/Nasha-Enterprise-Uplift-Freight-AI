@@ -1,0 +1,20 @@
+[package]
+name = "nasha-enterprise"
+version = "1.0.0"
+description = "Nasha Enterprise — Smart Quoting Engine Desktop App"
+authors = ["Nasha Enterprise Limited"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1", features = [] }
+
+[dependencies]
+tauri = { version = "1", features = ["shell-open", "system-tray", "dialog-save", "notification-all", "fs-all"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.11", features = ["json"] }
+hostname = "0.3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
