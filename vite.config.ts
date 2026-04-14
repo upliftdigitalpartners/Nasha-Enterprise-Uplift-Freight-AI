@@ -4,10 +4,10 @@ import react from "@vitejs/plugin-react";
 const isDemo = process.env.VITE_MODE === "demo";
 
 // For GitHub Pages: set base to your repo name
-// e.g. if your repo is github.com/nasha-enterprise/smart-quoting-engine
-// then base should be "/smart-quoting-engine/"
+// e.g. if your repo is github.com/nasha-enterprise/Nasha-Enterprise-Uplift-Freight-AI
+// then base should be "/Nasha-Enterprise-Uplift-Freight-AI/"
 // For custom domain or production: use "/"
-const base = isDemo ? "/smart-quoting-engine/" : "/";
+const base = isDemo ? "/Nasha-Enterprise-Uplift-Freight-AI/" : "/";
 
 export default defineConfig({
   plugins: [react()],
